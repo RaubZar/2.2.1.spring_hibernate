@@ -5,43 +5,47 @@ import hiber.model.*;
 import hiber.service.UserService;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainApp {
-   public static void main(String[] args) throws SQLException {
-      AnnotationConfigApplicationContext context = 
-            new AnnotationConfigApplicationContext(AppConfig.class);
-
+   public static void main(String[] args) {
+      AnnotationConfigApplicationContext context =
+              new AnnotationConfigApplicationContext(AppConfig.class);
       UserService userService = context.getBean(UserService.class);
-      User user1 = new User("User1", "Lastname1", "user1@mail.ru");
-      user1.setCar(new Car("Model1", 111));
-      userService.add(user1);
 
-      User user2 = new User("User2", "Lastname2", "user2@mail.ru");
-      user2.setCar(new Car("Model2", 222));
-      userService.add(user2);
+      List<User> users = Arrays.asList(
+              new User("User1", "Lastname1", "user1@mail.ru"),
+              new User("User2", "Lastname2", "user2@mail.ru"),
+              new User("User3", "Lastname3", "user3@mail.ru"),
+              new User("User4", "Lastname4", "user4@mail.ru")
+      );
+      users.forEach(userService::add);
 
-      User user3 = new User("User3", "Lastname3", "user3@mail.ru");
-      user3.setCar(new Car("Model3", 333));
-      userService.add(user3);
+      List<Car> cars = Arrays.asList(
+              new Car("Model1", 111),
+              new Car("Model2", 222),
+              new Car("Model3", 333),
+              new Car("Model4", 444)
+      );
+      cars.forEach(car -> userService.addCar(car));
 
-      User user4 = new User("User4", "Lastname4", "user4@mail.ru");
-      user4.setCar(new Car("Model4", 444));
-      userService.add(user4);
+      List<User> dbUsers = userService.listUsers();
+      List<Car> dbCars = userService.listCars();
 
-      List<User> users = userService.listUsers();
-      for (User user : users) {
-         System.out.println("Id = "+user.getId());
-         System.out.println("First Name = "+user.getFirstName());
-         System.out.println("Last Name = "+user.getLastName());
-         System.out.println("Email = "+user.getEmail());
-         if (user.getCar() != null) {
-            System.out.println("Car Model = " + user.getCar().getModel());
-            System.out.println("Car Series = " + user.getCar().getSeries());
-         }
-         System.out.println();
+      for (int i = 0; i < Math.min(dbUsers.size(), dbCars.size()); i++) {
+         User user = dbUsers.get(i);
+         Car car = dbCars.get(i);
+         user.setCar(car);
+         userService.update(user);
       }
+
+      userService.listUsers().forEach(user -> {
+         System.out.println(user);
+         if (user.getCar() != null) {
+            System.out.println("  Car: " + user.getCar());
+         }
+      });
 
       context.close();
    }

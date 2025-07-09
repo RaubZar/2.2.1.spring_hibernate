@@ -1,6 +1,15 @@
 package hiber.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.OneToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.CascadeType;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -69,6 +78,30 @@ public class User {
       this.car = car;
       if (car != null) {
          car.setUser(this);
+     }
    }
-}
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      User user = (User) o;
+      return Objects.equals(id, user.id) &&
+              Objects.equals(email, user.email);
+   }
+
+   @Override
+   public int hashCode() {
+      return Objects.hash(id, email);
+   }
+
+   @Override
+   public String toString() {
+      return "User{" +
+              "id=" + id +
+              ", firstName='" + firstName + '\'' +
+              ", lastName='" + lastName + '\'' +
+              ", email='" + email + '\'' +
+              ", car=" + (car != null ? car.getModel() + " " + car.getSeries() : "null") +
+              '}';
+   }
 }
